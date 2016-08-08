@@ -212,83 +212,83 @@ class PokemonCatchWorker(BaseTask):
                                                 }
                                             )
 
-                                else:
-                                    #We don't have many berry to waste, pick a good ball first. Save some berry for future VIP pokemon
-                                    current_type = pokeball
-                                    while current_type < 2:
-                                        current_type += 1
-                                        if catch_rate[pokeball-1] < 0.35 and items_stock[current_type] > 0:
-                                            # if current ball chance to catch is under 35%, and player has better ball - then use it
-                                            pokeball = current_type # use better ball
+                                # else:
+                                #     #We don't have many berry to waste, pick a good ball first. Save some berry for future VIP pokemon
+                                #     current_type = pokeball
+                                #     while current_type < 2:
+                                #         current_type += 1
+                                #         if catch_rate[pokeball-1] < 0.35 and items_stock[current_type] > 0:
+                                #             # if current ball chance to catch is under 35%, and player has better ball - then use it
+                                #             pokeball = current_type # use better ball
 
                                 #if the rate is still low and we didn't throw a berry before use berry
-                                if catch_rate[pokeball-1] < 0.35 and berries_count > 0 and berry_used == False:
-                                    # If it's not the VIP type, we don't want to waste our ultra ball if no balls left.
-                                    if items_stock[1] == 0 and items_stock[2] == 0:
-                                        break
+                                # if catch_rate[pokeball-1] < 0.35 and berries_count > 0 and berry_used == False:
+                                #     # If it's not the VIP type, we don't want to waste our ultra ball if no balls left.
+                                #     if items_stock[1] == 0 and items_stock[2] == 0:
+                                #         break
 
-                                    success_percentage = '{0:.2f}'.format(catch_rate[pokeball-1]*100)
-                                    self.emit_event(
-                                        'pokemon_catch_rate',
-                                        level='debug',
-                                        formatted="Catch rate of {catch_rate} is low. Throwing {berry_name} ({berry_count} left)",
-                                        data={
-                                            'catch_rate': success_percentage,
-                                            'berry_name': self.item_list[str(berry_id)],
-                                            'berry_count': berries_count-1
-                                        }
-                                    )
-                                    response_dict = self.api.use_item_capture(item_id=berry_id,
-                                        encounter_id=encounter_id,
-                                        spawn_point_id=self.spawn_point_guid
-                                    )
-                                    if response_dict and response_dict['status_code'] is 1 and 'item_capture_mult' in response_dict['responses']['USE_ITEM_CAPTURE']:
-                                        for i in range(len(catch_rate)):
-                                            if 'item_capture_mult' in response_dict['responses']['USE_ITEM_CAPTURE']:
-                                                catch_rate[i] = catch_rate[i] * response_dict['responses']['USE_ITEM_CAPTURE']['item_capture_mult']
-                                        success_percentage = '{0:.2f}'.format(catch_rate[pokeball-1]*100)
-                                        berries_count = berries_count -1
-                                        berry_used = True
-                                        self.emit_event(
-                                            'threw_berry',
-                                            formatted="Threw a {berry_name}! Catch rate now: {new_catch_rate}",
-                                            data={
-                                                "berry_name": self.item_list[str(berry_id)],
-                                                "new_catch_rate": success_percentage
-                                            }
-                                        )
-                                    else:
-                                        if response_dict['status_code'] is 1:
-                                            self.emit_event(
-                                                'softban',
-                                                level='warning',
-                                                formatted='Failed to use berry. You may be softbanned.'
-                                            )
-                                        else:
-                                            self.emit_event(
-                                                'threw_berry_failed',
-                                                formatted='Unknown response when throwing berry: {status_code}.',
-                                                data={
-                                                    'status_code': response_dict['status_code']
-                                                }
-                                            )
+                                #     success_percentage = '{0:.2f}'.format(catch_rate[pokeball-1]*100)
+                                #     self.emit_event(
+                                #         'pokemon_catch_rate',
+                                #         level='debug',
+                                #         formatted="Catch rate of {catch_rate} is low. Throwing {berry_name} ({berry_count} left)",
+                                #         data={
+                                #             'catch_rate': success_percentage,
+                                #             'berry_name': self.item_list[str(berry_id)],
+                                #             'berry_count': berries_count-1
+                                #         }
+                                #     )
+                                #     response_dict = self.api.use_item_capture(item_id=berry_id,
+                                #         encounter_id=encounter_id,
+                                #         spawn_point_id=self.spawn_point_guid
+                                #     )
+                                #     if response_dict and response_dict['status_code'] is 1 and 'item_capture_mult' in response_dict['responses']['USE_ITEM_CAPTURE']:
+                                #         for i in range(len(catch_rate)):
+                                #             if 'item_capture_mult' in response_dict['responses']['USE_ITEM_CAPTURE']:
+                                #                 catch_rate[i] = catch_rate[i] * response_dict['responses']['USE_ITEM_CAPTURE']['item_capture_mult']
+                                #         success_percentage = '{0:.2f}'.format(catch_rate[pokeball-1]*100)
+                                #         berries_count = berries_count -1
+                                #         berry_used = True
+                                #         self.emit_event(
+                                #             'threw_berry',
+                                #             formatted="Threw a {berry_name}! Catch rate now: {new_catch_rate}",
+                                #             data={
+                                #                 "berry_name": self.item_list[str(berry_id)],
+                                #                 "new_catch_rate": success_percentage
+                                #             }
+                                #         )
+                                #     else:
+                                #         if response_dict['status_code'] is 1:
+                                #             self.emit_event(
+                                #                 'softban',
+                                #                 level='warning',
+                                #                 formatted='Failed to use berry. You may be softbanned.'
+                                #             )
+                                #         else:
+                                #             self.emit_event(
+                                #                 'threw_berry_failed',
+                                #                 formatted='Unknown response when throwing berry: {status_code}.',
+                                #                 data={
+                                #                     'status_code': response_dict['status_code']
+                                #                 }
+                                #             )
 
                                 # Re-check if berry is used, find a ball for a good capture rate
-                                current_type=pokeball
-                                while current_type < 2:
-                                    current_type += 1
-                                    if catch_rate[pokeball-1] < 0.35 and items_stock[current_type] > 0:
-                                        pokeball = current_type # use better ball
+                                # current_type=pokeball
+                                # while current_type < 2:
+                                #     current_type += 1
+                                #     if catch_rate[pokeball-1] < 0.35 and items_stock[current_type] > 0:
+                                #         pokeball = current_type # use better ball
 
-                                # This is to avoid rare case that a berry has ben throwed <0.42
-                                # and still picking normal pokeball (out of stock) -> error
-                                if items_stock[1] == 0 and items_stock[2] > 0:
-                                    pokeball = 2
+                                # # This is to avoid rare case that a berry has ben throwed <0.42
+                                # # and still picking normal pokeball (out of stock) -> error
+                                # if items_stock[1] == 0 and items_stock[2] > 0:
+                                #     pokeball = 2
 
-                                # Add this logic to avoid Pokeball = 0, Great Ball = 0, Ultra Ball = X
-                                # And this logic saves Ultra Balls if it's a weak trash pokemon
-                                if catch_rate[pokeball-1]<0.30 and items_stock[3]>0:
-                                    pokeball = 3
+                                # # Add this logic to avoid Pokeball = 0, Great Ball = 0, Ultra Ball = X
+                                # # And this logic saves Ultra Balls if it's a weak trash pokemon
+                                # if catch_rate[pokeball-1]<0.30 and items_stock[3]>0:
+                                #     pokeball = 3
 
                             items_stock[pokeball] -= 1
                             success_percentage = '{0:.2f}'.format(catch_rate[pokeball - 1] * 100)
