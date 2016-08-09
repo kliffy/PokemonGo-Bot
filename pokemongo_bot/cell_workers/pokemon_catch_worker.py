@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+
 from pokemongo_bot.human_behaviour import (normalized_reticle_size, sleep,
                                            spin_modifier)
 from pokemongo_bot.base_task import BaseTask
@@ -440,9 +441,20 @@ class PokemonCatchWorker(BaseTask):
         if catch_config.get('always_catch', False):
             return True
 
-        catch_cp = catch_config.get('catch_above_cp', 0)
-        if cp > catch_cp:
+        catch_below_cp = catch_config.get('catch_below_cp', False)
+        catch_above_cp = catch_config.get('catch_above_cp', False)
+        if catch_above_cp:
+            if cp > catch_above_cp:
+                catch_results['cp'] = True
+        elif catch_below_cp:
+            if cp < catch_below_cp:
+                catch_results['cp'] = True
+        else:
             catch_results['cp'] = True
+
+        # catch_above_cp = catch_config.get('catch_above_cp', 0)
+        # if cp > catch_above_cp:
+        #     catch_results['cp'] = True
 
         catch_iv = catch_config.get('catch_above_iv', 0)
         if iv > catch_iv:
@@ -506,12 +518,25 @@ class PokemonCatchWorker(BaseTask):
             'iv': False,
         }
 
-        catch_cp = catch_config.get('catch_above_cp', 0)
-        if cp > catch_cp:
-            catch_results['cp'] = True
+        catch_below_cp = catch_config.get('catch_below_cp', False) #some value higher than any possible cp
+        catch_above_cp = catch_config.get('catch_above_cp', False)
+        if catch_above_cp:
+            if cp > catch_above_cp:
+                catch_results['cp'] = True
+        elif catch_below_cp:
+            if cp < catch_below_cp:
+                catch_results['cp'] = True
+        else:
+            catch_results['cp'] = Trueg
+
+        # catch_above_cp = catch_config.get('catch_above_cp', 0)
+        # if cp > catch_above_cp:
+        #     catch_results['cp'] = True
+
         catch_iv = catch_config.get('catch_above_iv', 0)
         if iv > catch_iv:
             catch_results['iv'] = True
+
         logic_to_function = {
             'or': lambda x, y: x or y,
             'and': lambda x, y: x and y
