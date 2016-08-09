@@ -167,8 +167,15 @@ class PokemonCatchWorker(BaseTask):
         if pokemon_config.get('always_catch', False):
             return True
 
-        catch_cp = pokemon_config.get('catch_above_cp', 0)
-        if pokemon.cp > catch_cp:
+        catch_below_cp = catch_config.get('catch_below_cp', False)
+        catch_above_cp = catch_config.get('catch_above_cp', False)
+        if catch_above_cp:
+            if cp > catch_above_cp:
+                catch_results['cp'] = True
+        elif catch_below_cp:
+            if cp < catch_below_cp:
+                catch_results['cp'] = True
+        else:
             catch_results['cp'] = True
 
         catch_iv = pokemon_config.get('catch_above_iv', 0)
