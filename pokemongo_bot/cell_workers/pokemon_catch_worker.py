@@ -217,8 +217,19 @@ class PokemonCatchWorker(Datastore, BaseTask):
         if pokemon.cp_percent > catch_ncp:
             catch_results['ncp'] = True
 
-        catch_cp = pokemon_config.get('catch_above_cp', 1200)
-        if pokemon.cp > catch_cp:
+        # catch_cp = pokemon_config.get('catch_above_cp', 1200)
+        # if pokemon.cp > catch_cp:
+        #     catch_results['cp'] = True
+
+        catch_below_cp = pokemon_config.get('catch_below_cp', False)
+        catch_above_cp = pokemon_config.get('catch_above_cp', False)
+        if catch_above_cp:
+            if pokemon.cp > catch_above_cp:
+                catch_results['cp'] = True
+        elif catch_below_cp:
+            if pokemon.cp < catch_below_cp:
+                catch_results['cp'] = True
+        else:
             catch_results['cp'] = True
 
         catch_iv = pokemon_config.get('catch_above_iv', 0.8)
